@@ -1,15 +1,13 @@
-namespace CookieClicker.Model.Ferme;
+namespace CookieClicker.Model.Batiments.BatimentEnfants;
+using Batiments;
 
-using System.Security.AccessControl;
-using Batiment;
-
-public class Ferme : Batiment {
-    public Ferme()
+public class Curseur : Batiment {
+    public Curseur()
     {
         IsTime = true;
         
         CookiesPerMinutes = 0;
-        Prix = 110 ; 
+        Prix = 15 ; 
     
     }
     public override void Do()

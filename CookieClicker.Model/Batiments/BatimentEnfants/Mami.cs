@@ -1,10 +1,7 @@
-namespace CookieClicker.Model.Mine;
+namespace CookieClicker.Model.Batiments.BatimentEnfants;
 
-using System.Security.AccessControl;
-using Batiment;
-
-public class Mine : Batiment {
-    public Mine()
+public class Mami : Batiment {
+    public Mami()
     {
         IsTime = true;
         

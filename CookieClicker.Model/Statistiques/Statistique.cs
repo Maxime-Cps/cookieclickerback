@@ -1,4 +1,4 @@
-namespace CookieClicker.Model;
+namespace CookieClicker.Model.Statistiques;
 
 public class Statistique
 {
@@ -6,9 +6,9 @@ public class Statistique
     public double CookiesProduits { get; private set; }
     public int NbBatimentsAchetes { get; private set; }
 
-    public void AjouterClic(double cookies)
+    public void AjouterClics(int nbClics, double cookies)
     {
-        NbClics++;
+        NbClics += nbClics;
         CookiesProduits += cookies;
     }
 

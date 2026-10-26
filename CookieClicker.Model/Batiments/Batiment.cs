@@ -1,4 +1,4 @@
-namespace CookieClicker.Model.Batiment;
+namespace CookieClicker.Model.Batiments;
 
 public abstract class Batiment
 {

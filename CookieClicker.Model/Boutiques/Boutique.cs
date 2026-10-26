@@ -1,10 +1,7 @@
-namespace CookieClicker.Model.Boutique;
-using Batiment;
-using Curseur;
-using Mami;
-using Mine;
-using Ferme;
+using CookieClicker.Model.Batiments;
+using CookieClicker.Model.Batiments.BatimentEnfants;
 
+namespace CookieClicker.Model.Boutiques;
 
 public abstract class Boutique
 {
