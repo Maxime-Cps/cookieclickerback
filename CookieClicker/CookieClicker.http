@@ -1,0 +1,6 @@
+@CookieClicker_HostAddress = http://localhost:5179
+
+GET {{CookieClicker_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
