@@ -12,8 +12,8 @@ public class BatimentService
         _game = game;
     }
 
-    public List<BatimentPossede>? GetPossedes(Guid playerId)
+    public List<BatimentPossede> GetPossedes()
     {
-        return _game.GetJoueur(playerId)?.BatimentsPossedes();
+        return _game.BatimentsPossedes();
     }
 }

@@ -15,15 +15,9 @@ public class BatimentsController : ControllerBase
         _batimentService = batimentService;
     }
 
-    [HttpGet("{playerId:guid}")]
-    public ActionResult<List<BatimentPossede>> Get(Guid playerId)
+    [HttpGet]
+    public List<BatimentPossede> Get()
     {
-        var batiments = _batimentService.GetPossedes(playerId);
-        if (batiments is null)
-        {
-            return NotFound();
-        }
-
-        return batiments;
+        return _batimentService.GetPossedes();
     }
 }

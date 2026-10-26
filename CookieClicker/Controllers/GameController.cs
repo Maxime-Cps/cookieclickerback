@@ -1,5 +1,5 @@
+using CookieClicker.Dtos;
 using CookieClicker.Model.Games;
-using CookieClicker.Model.Players;
 using CookieClicker.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,10 +22,10 @@ public class GameController : ControllerBase
         return _gameService.GetEtat();
     }
 
-    [HttpGet("classement")]
-    public List<Player> GetClassement()
+    [HttpPut("cookies")]
+    public Game MettreAJourCookies(CookiesRequest request)
     {
-        return _gameService.GetClassement();
+        return _gameService.MettreAJourCookies(request.Cookies, request.NbClics);
     }
 
     [HttpPost("reset")]

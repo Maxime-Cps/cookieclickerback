@@ -12,8 +12,8 @@ public class StatistiqueService
         _game = game;
     }
 
-    public ResumeStatistiques? Get(Guid playerId)
+    public ResumeStatistiques Get()
     {
-        return _game.GetJoueur(playerId)?.Resume();
+        return _game.Resume();
     }
 }

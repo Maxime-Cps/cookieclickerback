@@ -14,22 +14,11 @@ public class PowerUpService
 
     public List<ArticlePowerUp> GetCatalogue()
     {
-        return _game.Boutique.CatalogueAmeliorations(null);
+        return _game.Boutique.CatalogueAmeliorations(_game);
     }
 
-    public List<ArticlePowerUp>? GetCatalogue(Guid playerId)
+    public ResultatAchat Acheter(string powerUpId)
     {
-        var player = _game.GetJoueur(playerId);
-        if (player is null)
-        {
-            return null;
-        }
-
-        return _game.Boutique.CatalogueAmeliorations(player);
-    }
-
-    public ResultatAchat Acheter(Guid playerId, string powerUpId)
-    {
-        return _game.AcheterPowerUp(playerId, powerUpId);
+        return _game.AcheterPowerUp(powerUpId);
     }
 }

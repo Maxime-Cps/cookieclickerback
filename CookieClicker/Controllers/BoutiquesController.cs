@@ -1,5 +1,5 @@
 using CookieClicker.Model.Boutiques;
-using CookieClicker.Model.Players;
+using CookieClicker.Model.Games;
 using CookieClicker.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,50 +10,36 @@ namespace CookieClicker.Controllers;
 public class BoutiquesController : ControllerBase
 {
     private readonly BoutiqueService _boutiqueService;
-    private readonly PlayerService _playerService;
+    private readonly GameService _gameService;
 
-    public BoutiquesController(BoutiqueService boutiqueService, PlayerService playerService)
+    public BoutiquesController(BoutiqueService boutiqueService, GameService gameService)
     {
         _boutiqueService = boutiqueService;
-        _playerService = playerService;
+        _gameService = gameService;
     }
 
     [HttpGet]
-    public List<Article> GetAll([FromQuery] int quantite = 1)
+    public List<Article> Get([FromQuery] int quantite = 1)
     {
         return _boutiqueService.GetCatalogue(quantite);
     }
 
-    [HttpGet("{playerId:guid}")]
-    public ActionResult<List<Article>> Get(Guid playerId, [FromQuery] int quantite = 1)
+    [HttpPost("batiments/{type}")]
+    public ActionResult<Game> Acheter(TypeBatiment type, [FromQuery] int quantite = 1)
     {
-        var catalogue = _boutiqueService.GetCatalogue(playerId, quantite);
-        if (catalogue is null)
-        {
-            return NotFound();
-        }
-
-        return catalogue;
+        return Repondre(type, _boutiqueService.Acheter(type, quantite));
     }
 
-    [HttpPost("{playerId:guid}/batiments/{type}")]
-    public ActionResult<Player> Acheter(Guid playerId, TypeBatiment type, [FromQuery] int quantite = 1)
+    [HttpPost("batiments/{type}/vente")]
+    public ActionResult<Game> Vendre(TypeBatiment type, [FromQuery] int quantite = 1)
     {
-        return Repondre(playerId, type, _boutiqueService.Acheter(playerId, type, quantite));
+        return Repondre(type, _boutiqueService.Vendre(type, quantite));
     }
 
-    [HttpPost("{playerId:guid}/batiments/{type}/vente")]
-    public ActionResult<Player> Vendre(Guid playerId, TypeBatiment type, [FromQuery] int quantite = 1)
-    {
-        return Repondre(playerId, type, _boutiqueService.Vendre(playerId, type, quantite));
-    }
-
-    private ActionResult<Player> Repondre(Guid playerId, TypeBatiment type, ResultatAchat resultat)
+    private ActionResult<Game> Repondre(TypeBatiment type, ResultatAchat resultat)
     {
         switch (resultat)
         {
-            case ResultatAchat.JoueurInconnu:
-                return NotFound();
             case ResultatAchat.BatimentInconnu:
                 return BadRequest($"Unknown building: {type}");
             case ResultatAchat.QuantiteInvalide:
@@ -64,6 +50,6 @@ public class BoutiquesController : ControllerBase
                 return BadRequest("Not enough buildings to sell");
         }
 
-        return _playerService.Get(playerId)!;
+        return _gameService.GetEtat();
     }
 }

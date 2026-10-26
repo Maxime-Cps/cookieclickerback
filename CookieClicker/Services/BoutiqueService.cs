@@ -14,27 +14,16 @@ public class BoutiqueService
 
     public List<Article> GetCatalogue(int quantite)
     {
-        return _game.Boutique.Catalogue(null, quantite);
+        return _game.Boutique.Catalogue(_game, quantite);
     }
 
-    public List<Article>? GetCatalogue(Guid playerId, int quantite)
+    public ResultatAchat Acheter(TypeBatiment type, int quantite)
     {
-        var player = _game.GetJoueur(playerId);
-        if (player is null)
-        {
-            return null;
-        }
-
-        return _game.Boutique.Catalogue(player, quantite);
+        return _game.Acheter(type, quantite);
     }
 
-    public ResultatAchat Acheter(Guid playerId, TypeBatiment type, int quantite)
+    public ResultatAchat Vendre(TypeBatiment type, int quantite)
     {
-        return _game.Acheter(playerId, type, quantite);
-    }
-
-    public ResultatAchat Vendre(Guid playerId, TypeBatiment type, int quantite)
-    {
-        return _game.Vendre(playerId, type, quantite);
+        return _game.Vendre(type, quantite);
     }
 }

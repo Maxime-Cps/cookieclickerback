@@ -1,5 +1,4 @@
 using CookieClicker.Model.Games;
-using CookieClicker.Model.Players;
 
 namespace CookieClicker.Services;
 
@@ -17,9 +16,11 @@ public class GameService
         return _game;
     }
 
-    public List<Player> GetClassement()
+    public Game MettreAJourCookies(double cookies, int nbClics)
     {
-        return _game.Classement();
+        _game.MettreAJour(cookies, nbClics);
+
+        return _game;
     }
 
     public void Reinitialiser()

@@ -1,106 +1,161 @@
-using System.Collections.Concurrent;
 using System.Text.Json.Serialization;
+using CookieClicker.Model.Batiments;
 using CookieClicker.Model.Boutiques;
-using CookieClicker.Model.Players;
+using CookieClicker.Model.PowerUps;
+using CookieClicker.Model.Statistiques;
 
 namespace CookieClicker.Model.Games;
 
 public class Game
 {
-    private readonly ConcurrentDictionary<Guid, Player> _players = new();
+    private const double CookiesPerClick = 1;
+    private const double SecondesParMinute = 60;
 
-    public DateTime DateDebut { get; private set; } = DateTime.UtcNow;
-    public IEnumerable<Player> Players => _players.Values;
-    public int NbJoueurs => _players.Count;
-    public double CookiesProduits => Players.Sum(p => p.Statistiques.CookiesProduits);
+    private readonly object _verrou = new();
+
+    public double Cookies { get; private set; }
+    public Statistique Statistiques { get; private set; } = new();
+    public List<Batiment> Batiments { get; } = [];
+    public List<PowerUp> Upgrades { get; } = [];
+
+    public double CookiesPerSecond => Batiments.Sum(Production);
+    public double CookiesParClic => CookiesPerClick * Multiplicateur(Upgrades.Where(u => u.AffecteClic));
 
     [JsonIgnore]
     public Boutique Boutique { get; } = new();
 
-    public Player AjouterJoueur(string name)
+    public void MettreAJour(double cookies, int nbClics)
     {
-        var player = new Player(name);
-        _players[player.Id] = player;
-
-        return player;
-    }
-
-    public Player? GetJoueur(Guid id)
-    {
-        return _players.GetValueOrDefault(id);
-    }
-
-    public bool RetirerJoueur(Guid id)
-    {
-        return _players.TryRemove(id, out _);
-    }
-
-    public Player? MettreAJourCookies(Guid id, double cookies, int nbClics)
-    {
-        var player = GetJoueur(id);
-        if (player is null)
+        lock (_verrou)
         {
-            return null;
-        }
+            if (cookies > Cookies)
+            {
+                Statistiques.AjouterProduction(cookies - Cookies);
+            }
 
-        lock (player)
-        {
-            player.MettreAJour(cookies, nbClics);
-        }
-
-        return player;
-    }
-
-    public ResultatAchat Acheter(Guid id, TypeBatiment type, int quantite)
-    {
-        var player = GetJoueur(id);
-        if (player is null)
-        {
-            return ResultatAchat.JoueurInconnu;
-        }
-
-        lock (player)
-        {
-            return Boutique.Acheter(player, type, quantite);
+            Cookies = cookies;
+            Statistiques.AjouterClics(nbClics);
         }
     }
 
-    public ResultatAchat Vendre(Guid id, TypeBatiment type, int quantite)
+    public ResultatAchat Acheter(TypeBatiment type, int quantite)
     {
-        var player = GetJoueur(id);
-        if (player is null)
+        lock (_verrou)
         {
-            return ResultatAchat.JoueurInconnu;
-        }
-
-        lock (player)
-        {
-            return Boutique.Vendre(player, type, quantite);
+            return Boutique.Acheter(this, type, quantite);
         }
     }
 
-    public ResultatAchat AcheterPowerUp(Guid id, string powerUpId)
+    public ResultatAchat Vendre(TypeBatiment type, int quantite)
     {
-        var player = GetJoueur(id);
-        if (player is null)
+        lock (_verrou)
         {
-            return ResultatAchat.JoueurInconnu;
-        }
-
-        lock (player)
-        {
-            return Boutique.AcheterPowerUp(player, powerUpId);
+            return Boutique.Vendre(this, type, quantite);
         }
     }
 
-    public List<Player> Classement()
+    public ResultatAchat AcheterPowerUp(string powerUpId)
     {
-        return Players.OrderByDescending(p => p.Statistiques.CookiesProduits).ToList();
+        lock (_verrou)
+        {
+            return Boutique.AcheterPowerUp(this, powerUpId);
+        }
     }
 
     public void Reinitialiser()
     {
-        _players.Clear();
-        DateDebut = DateTime.UtcNow;
+        lock (_verrou)
+        {
+            Cookies = 0;
+            Statistiques = new Statistique();
+            Batiments.Clear();
+            Upgrades.Clear();
+        }
+    }
+
+    public int Count(Batiment batiment)
+    {
+        return Batiments.Count(b => b.GetType() == batiment.GetType());
+    }
+
+    public bool AjouterBatiments(List<Batiment> batiments, double prix)
+    {
+        if (Cookies < prix)
+        {
+            return false;
+        }
+
+        Cookies -= prix;
+        Batiments.AddRange(batiments);
+        Statistiques.AjouterAchatBatiments(batiments.Count);
+
+        return true;
+    }
+
+    public bool RetirerBatiments(Batiment modele, int quantite, double remboursement)
+    {
+        var aVendre = Batiments.Where(b => b.GetType() == modele.GetType()).TakeLast(quantite).ToList();
+        if (aVendre.Count < quantite)
+        {
+            return false;
+        }
+
+        foreach (var batiment in aVendre)
+        {
+            Batiments.Remove(batiment);
+        }
+
+        Cookies += remboursement;
+
+        return true;
+    }
+
+    public bool Possede(PowerUp powerUp)
+    {
+        return Upgrades.Contains(powerUp);
+    }
+
+    public bool AjouterPowerUp(PowerUp powerUp)
+    {
+        if (Possede(powerUp) || Cookies < powerUp.Prix)
+        {
+            return false;
+        }
+
+        Cookies -= powerUp.Prix;
+        Upgrades.Add(powerUp);
+
+        return true;
+    }
+
+    public List<BatimentPossede> BatimentsPossedes()
+    {
+        return Batiments
+            .GroupBy(b => b.GetType().Name)
+            .Select(g => new BatimentPossede(g.Key, g.Count(), g.Sum(Production)))
+            .ToList();
+    }
+
+    public ResumeStatistiques Resume()
+    {
+        return new ResumeStatistiques(
+            Statistiques.NbClics,
+            Statistiques.CookiesProduits,
+            Batiments.Count,
+            Upgrades.Count,
+            CookiesPerSecond,
+            CookiesParClic);
+    }
+
+    public double Production(Batiment batiment)
+    {
+        double multiplicateur = Multiplicateur(Upgrades.Where(u => u.Affecte(batiment)));
+
+        return batiment.CookiesPerMinutes / SecondesParMinute * multiplicateur;
+    }
+
+    private static double Multiplicateur(IEnumerable<PowerUp> powerUps)
+    {
+        return powerUps.Aggregate(1.0, (total, u) => total * u.Multiplicateur);
     }
 }

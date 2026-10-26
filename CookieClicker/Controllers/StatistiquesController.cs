@@ -15,15 +15,9 @@ public class StatistiquesController : ControllerBase
         _statistiqueService = statistiqueService;
     }
 
-    [HttpGet("{playerId:guid}")]
-    public ActionResult<ResumeStatistiques> Get(Guid playerId)
+    [HttpGet]
+    public ResumeStatistiques Get()
     {
-        var resume = _statistiqueService.Get(playerId);
-        if (resume is null)
-        {
-            return NotFound();
-        }
-
-        return resume;
+        return _statistiqueService.Get();
     }
 }

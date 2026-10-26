@@ -1,5 +1,5 @@
 using CookieClicker.Model.Boutiques;
-using CookieClicker.Model.Players;
+using CookieClicker.Model.Games;
 using CookieClicker.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,38 +10,25 @@ namespace CookieClicker.Controllers;
 public class PowerUpsController : ControllerBase
 {
     private readonly PowerUpService _powerUpService;
-    private readonly PlayerService _playerService;
+    private readonly GameService _gameService;
 
-    public PowerUpsController(PowerUpService powerUpService, PlayerService playerService)
+    public PowerUpsController(PowerUpService powerUpService, GameService gameService)
     {
         _powerUpService = powerUpService;
-        _playerService = playerService;
+        _gameService = gameService;
     }
 
     [HttpGet]
-    public List<ArticlePowerUp> GetAll()
+    public List<ArticlePowerUp> Get()
     {
         return _powerUpService.GetCatalogue();
     }
 
-    [HttpGet("{playerId:guid}")]
-    public ActionResult<List<ArticlePowerUp>> Get(Guid playerId)
+    [HttpPost("{powerUpId}")]
+    public ActionResult<Game> Acheter(string powerUpId)
     {
-        var catalogue = _powerUpService.GetCatalogue(playerId);
-        if (catalogue is null)
+        switch (_powerUpService.Acheter(powerUpId))
         {
-            return NotFound();
-        }
-
-        return catalogue;
-    }
-
-    [HttpPost("{playerId:guid}/{powerUpId}")]
-    public ActionResult<Player> Acheter(Guid playerId, string powerUpId)
-    {
-        switch (_powerUpService.Acheter(playerId, powerUpId))
-        {
-            case ResultatAchat.JoueurInconnu:
             case ResultatAchat.PowerUpInconnu:
                 return NotFound();
             case ResultatAchat.DejaPossede:
@@ -50,6 +37,6 @@ public class PowerUpsController : ControllerBase
                 return BadRequest("Not enough cookies");
         }
 
-        return _playerService.Get(playerId)!;
+        return _gameService.GetEtat();
     }
 }

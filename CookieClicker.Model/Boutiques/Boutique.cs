@@ -1,6 +1,6 @@
 using CookieClicker.Model.Batiments;
 using CookieClicker.Model.Batiments.BatimentEnfants;
-using CookieClicker.Model.Players;
+using CookieClicker.Model.Games;
 using CookieClicker.Model.PowerUps;
 
 namespace CookieClicker.Model.Boutiques;
@@ -21,12 +21,12 @@ public class Boutique
         [TypeBatiment.Usine] = () => new Usine(),
     };
 
-    public List<Article> Catalogue(Player? player, int quantite)
+    public List<Article> Catalogue(Game game, int quantite)
     {
-        return Fabriques.Keys.Select(type => CreerArticle(type, player, quantite)).ToList();
+        return Fabriques.Keys.Select(type => CreerArticle(type, game, quantite)).ToList();
     }
 
-    public ResultatAchat Acheter(Player player, TypeBatiment type, int quantite)
+    public ResultatAchat Acheter(Game game, TypeBatiment type, int quantite)
     {
         if (!Quantites.Contains(quantite))
         {
@@ -39,7 +39,7 @@ public class Boutique
         }
 
         var batiments = Enumerable.Range(0, quantite).Select(_ => fabrique()).ToList();
-        if (!player.Buy(batiments, Prix(batiments[0], player, quantite)))
+        if (!game.AjouterBatiments(batiments, Prix(batiments[0], game, quantite)))
         {
             return ResultatAchat.FondsInsuffisants;
         }
@@ -47,7 +47,7 @@ public class Boutique
         return ResultatAchat.Ok;
     }
 
-    public ResultatAchat Vendre(Player player, TypeBatiment type, int quantite)
+    public ResultatAchat Vendre(Game game, TypeBatiment type, int quantite)
     {
         if (!Quantites.Contains(quantite))
         {
@@ -60,7 +60,7 @@ public class Boutique
         }
 
         var modele = fabrique();
-        if (!player.Vendre(modele, quantite, PrixRevente(modele, player, quantite)))
+        if (!game.RetirerBatiments(modele, quantite, PrixRevente(modele, game, quantite)))
         {
             return ResultatAchat.PasAssezDeBatiments;
         }
@@ -68,14 +68,14 @@ public class Boutique
         return ResultatAchat.Ok;
     }
 
-    public List<ArticlePowerUp> CatalogueAmeliorations(Player? player)
+    public List<ArticlePowerUp> CatalogueAmeliorations(Game game)
     {
         return CataloguePowerUps.Tous
-            .Select(p => new ArticlePowerUp(p.Id, p.Nom, p.Prix, p.Cible, p.Multiplicateur, player?.Possede(p) ?? false))
+            .Select(p => new ArticlePowerUp(p.Id, p.Nom, p.Prix, p.Cible, p.Multiplicateur, game.Possede(p)))
             .ToList();
     }
 
-    public ResultatAchat AcheterPowerUp(Player player, string powerUpId)
+    public ResultatAchat AcheterPowerUp(Game game, string powerUpId)
     {
         var powerUp = CataloguePowerUps.Trouver(powerUpId);
         if (powerUp is null)
@@ -83,12 +83,12 @@ public class Boutique
             return ResultatAchat.PowerUpInconnu;
         }
 
-        if (player.Possede(powerUp))
+        if (game.Possede(powerUp))
         {
             return ResultatAchat.DejaPossede;
         }
 
-        if (!player.Buy(powerUp))
+        if (!game.AjouterPowerUp(powerUp))
         {
             return ResultatAchat.FondsInsuffisants;
         }
@@ -96,7 +96,7 @@ public class Boutique
         return ResultatAchat.Ok;
     }
 
-    private static Article CreerArticle(TypeBatiment type, Player? player, int quantite)
+    private static Article CreerArticle(TypeBatiment type, Game game, int quantite)
     {
         var batiment = Fabriques[type]();
 
@@ -104,22 +104,22 @@ public class Boutique
             type,
             type.ToString(),
             quantite,
-            Prix(batiment, player, quantite),
-            PrixRevente(batiment, player, quantite),
+            Prix(batiment, game, quantite),
+            PrixRevente(batiment, game, quantite),
             batiment.CookiesPerMinutes,
-            player?.Count(batiment) ?? 0);
+            game.Count(batiment));
     }
 
-    private static double Prix(Batiment batiment, Player? player, int quantite)
+    private static double Prix(Batiment batiment, Game game, int quantite)
     {
-        int possedes = player?.Count(batiment) ?? 0;
+        int possedes = game.Count(batiment);
 
         return CoutCumule(batiment.Prix, possedes, quantite);
     }
 
-    private static double PrixRevente(Batiment batiment, Player? player, int quantite)
+    private static double PrixRevente(Batiment batiment, Game game, int quantite)
     {
-        int possedes = player?.Count(batiment) ?? 0;
+        int possedes = game.Count(batiment);
         if (possedes < quantite)
         {
             return 0;
