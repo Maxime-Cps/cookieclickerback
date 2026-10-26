@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CookieClicker", "CookieClicker\CookieClicker.csproj", "{5527B955-7397-4D33-ADB6-64D13E06ACFF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CookieClicker.Model", "CookieClicker.Model\CookieClicker.Model.csproj", "{80D788C1-23D3-4314-A61C-0C32DC70B7C8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{5527B955-7397-4D33-ADB6-64D13E06ACFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5527B955-7397-4D33-ADB6-64D13E06ACFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5527B955-7397-4D33-ADB6-64D13E06ACFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80D788C1-23D3-4314-A61C-0C32DC70B7C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80D788C1-23D3-4314-A61C-0C32DC70B7C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80D788C1-23D3-4314-A61C-0C32DC70B7C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80D788C1-23D3-4314-A61C-0C32DC70B7C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
