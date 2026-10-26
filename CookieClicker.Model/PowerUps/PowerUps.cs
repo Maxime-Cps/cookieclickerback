@@ -1,6 +1,6 @@
 namespace CookieClicker.Model.Upgrades;
 
-public class Uprades
+public class PowerUps
 {
     
 }
