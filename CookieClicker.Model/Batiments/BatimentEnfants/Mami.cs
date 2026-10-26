@@ -5,8 +5,8 @@ public class Mami : Batiment {
     {
         IsTime = true;
         
-        CookiesPerMinutes = 0;
-        Prix = 110 ; 
+        CookiesPerMinutes = 60;
+        Prix = 100; 
     
     }
     public override void Do()

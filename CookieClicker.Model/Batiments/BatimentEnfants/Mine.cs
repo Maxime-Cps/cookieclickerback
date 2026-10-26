@@ -5,8 +5,8 @@ public class Mine : Batiment {
     {
         IsTime = true;
         
-        CookiesPerMinutes = 0;
-        Prix = 110 ; 
+        CookiesPerMinutes = 2_820;
+        Prix = 12_000; 
     
     }
     public override void Do()

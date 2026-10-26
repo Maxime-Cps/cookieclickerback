@@ -6,8 +6,8 @@ public class Curseur : Batiment {
     {
         IsTime = true;
         
-        CookiesPerMinutes = 0;
-        Prix = 15 ; 
+        CookiesPerMinutes = 6;
+        Prix = 15; 
     
     }
     public override void Do()

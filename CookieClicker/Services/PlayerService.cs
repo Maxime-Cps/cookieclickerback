@@ -1,64 +1,39 @@
-using System.Collections.Concurrent;
+using CookieClicker.Model.Games;
 using CookieClicker.Model.Players;
 
 namespace CookieClicker.Services;
 
 public class PlayerService
 {
-    private readonly ConcurrentDictionary<Guid, Player> _players = new();
+    private readonly Game _game;
+
+    public PlayerService(Game game)
+    {
+        _game = game;
+    }
 
     public IEnumerable<Player> GetAll()
     {
-        return _players.Values.Select(Synchroniser).ToList();
+        return _game.Players.ToList();
     }
 
     public Player? Get(Guid id)
     {
-        var player = _players.GetValueOrDefault(id);
-        if (player is null)
-        {
-            return null;
-        }
-
-        return Synchroniser(player);
+        return _game.GetJoueur(id);
     }
 
     public Player Create(string name)
     {
-        var player = new Player(name);
-        _players[player.Id] = player;
-
-        return player;
+        return _game.AjouterJoueur(name);
     }
 
     public bool Delete(Guid id)
     {
-        return _players.TryRemove(id, out _);
+        return _game.RetirerJoueur(id);
     }
 
-    public Player? Click(Guid id, int nbClics)
+    public Player? MettreAJourCookies(Guid id, double cookies, int nbClics)
     {
-        var player = Get(id);
-        if (player is null)
-        {
-            return null;
-        }
-
-        lock (player)
-        {
-            player.Click(nbClics);
-        }
-
-        return player;
-    }
-
-    private static Player Synchroniser(Player player)
-    {
-        lock (player)
-        {
-            player.Synchroniser(DateTime.UtcNow);
-        }
-
-        return player;
+        return _game.MettreAJourCookies(id, cookies, nbClics);
     }
 }

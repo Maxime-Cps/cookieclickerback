@@ -6,10 +6,9 @@ public class Statistique
     public double CookiesProduits { get; private set; }
     public int NbBatimentsAchetes { get; private set; }
 
-    public void AjouterClics(int nbClics, double cookies)
+    public void AjouterClics(int nbClics)
     {
         NbClics += nbClics;
-        CookiesProduits += cookies;
     }
 
     public void AjouterProduction(double cookies)
@@ -17,8 +16,8 @@ public class Statistique
         CookiesProduits += cookies;
     }
 
-    public void AjouterAchatBatiment()
+    public void AjouterAchatBatiments(int nbBatiments)
     {
-        NbBatimentsAchetes++;
+        NbBatimentsAchetes += nbBatiments;
     }
 }

@@ -42,10 +42,10 @@ public class PlayersController : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = player.Id }, player);
     }
 
-    [HttpPost("{id:guid}/clicks")]
-    public ActionResult<Player> Click(Guid id, ClicksRequest request)
+    [HttpPut("{id:guid}/cookies")]
+    public ActionResult<Player> MettreAJourCookies(Guid id, CookiesRequest request)
     {
-        var player = _playerService.Click(id, request.NbClics);
+        var player = _playerService.MettreAJourCookies(id, request.Cookies, request.NbClics);
         if (player is null)
         {
             return NotFound();

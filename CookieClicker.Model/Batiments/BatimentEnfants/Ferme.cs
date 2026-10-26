@@ -5,8 +5,8 @@ public class Ferme : Batiment {
     {
         IsTime = true;
         
-        CookiesPerMinutes = 0;
-        Prix = 110 ; 
+        CookiesPerMinutes = 480;
+        Prix = 1_100; 
     
     }
     public override void Do()
